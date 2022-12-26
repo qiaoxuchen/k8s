@@ -1,0 +1,15 @@
+FROM centos:7.8.2003
+
+# 创建目录存储 jdk
+RUN mkdir /usr/local/jdk
+
+# 添加jdk,并自动解压
+ADD jdk-11.0.10_linux-x64_bin.tar.gz /usr/local/jdk/
+
+# 设置环境变量
+ENV JAVA_HOME /usr/local/jdk/jdk-11.0.10
+ENV PATH $JAVA_HOME/bin:$PATH
+
+
+
+

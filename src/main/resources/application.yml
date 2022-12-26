@@ -1,0 +1,6 @@
+platform:
+  type: pc
+  pwd: pc-pwd
+user:
+  name: zhangsan
+  pwd: 111111

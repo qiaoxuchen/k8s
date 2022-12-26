@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: k8s-model
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true
+        mode: POLLING
+        period: 10000
+        strategy: REFRESH
+        monitoring-config-maps: true
+        monitoring-secrets: true
+      config:
+        sources:
+          - name: test-configmap
+      secrets:
+        enabled: true
+        enable-api: true
+        name: test-secret
+
+

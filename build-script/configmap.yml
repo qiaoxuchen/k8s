@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-configmap
+  namespace: default
+data:
+  test-configmap.yaml: |
+    server:
+      port: 8081
+    management:
+      endpoint:
+        restart:
+          enabled: true
+        health:
+          enabled: true
+        info:
+          enabled: true
+      health:
+        redis:
+          enabled: false
+      endpoints:
+        web:
+          exposure:
+            include: '*'  
+    platform:
+      type: pc
+      pwd: ${platform-pwd}
+    user:
+      name: zhangsan
+      pwd: ${user-pwd}
+    

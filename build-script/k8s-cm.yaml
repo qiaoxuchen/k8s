@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # 定义服务名称，其他Pod可以通过服务名称作为域名进行访问
+  name: k8s-model-service
+  namespace: default
+  labels:
+    app: k8s-model-service
+spec:
+  # 指定服务类型，通过Node上的静态端口暴露服务
+  type: NodePort
+  # 标签选择器,这里指定的是pod的标签,key和value都得一样
+  selector:
+    app: k8s-model
+  ports:
+    - name: http
+      port: 8081
+      # 这个端口是你Pod的端口(pod里面是容器,容器里面业务真正的端口)
+      targetPort: 8081
+      # Node上的静态端口
+      nodePort: 8081
+
+---
+#资源deployment对应的api版本,可以用kubectl explain deployment来查看;
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # 指定Deployment的名称
+  name: k8s-model
+  namespace: default
+spec:
+  # 标签选择器
+  selector:
+    # 匹配标签,匹配的是pod的标签,key和values都得一样
+    matchLabels:
+      app: k8s-model
+  # 指定创建的Pod副本数量
+  replicas: 1
+  # 指定创建Pod的模板
+  template:
+    metadata:
+      # 给Pod打上app:boot标签
+      labels:
+        app: k8s-model
+    # Pod的模板规约
+    spec:
+      # 查找带有nodetype的node
+      nodeSelector:
+        nodetype: power
+      containers:
+        # 指定容器镜像
+        - name: k8s-model
+          image: 127.0.0.1:5000/java-program/k8s-model@sha256:49120d41622c7029f0d7f608c1bdc0a16fd1412ad7855e4a2c7f3aa50e03b1dd
+          # 指定开放的端口
+          ports:
+            - containerPort: 8081
+          # 资源分配
+          resources:
+            limits:
+              memory: "800Mi"
+              cpu: "1"
+            requests:
+              memory: "300Mi"
+              cpu: "0.1"
+          #存活探针
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            periodSeconds: 60
+          # 启动探针
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            failureThreshold: 30
+            periodSeconds: 10
+          #就绪探针
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 5  # 延迟探测时间(秒) 【 在k8s第一次探测前等待秒 】
+            periodSeconds: 5  # 执行探测频率(秒) 【 每隔秒执行一次 】
+
+
